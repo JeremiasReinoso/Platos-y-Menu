@@ -1,0 +1,4 @@
+import { PrismaClient } from "@prisma/client";
+const prisma=new PrismaClient();
+async function main(){const plan=await prisma.plan.upsert({where:{name:"Starter"},update:{},create:{name:"Starter",monthlyCents:0}});const restaurant=await prisma.restaurant.upsert({where:{slug:"la-nonna"},update:{},create:{name:"La Nonna",slug:"la-nonna",description:"Cocina italiana de barrio",isPublished:true}});await prisma.subscription.upsert({where:{restaurantId:restaurant.id},update:{planId:plan.id},create:{restaurantId:restaurant.id,planId:plan.id}});for(const [sortOrder,name] of ["Pizzas","Pastas","Postres","Bebidas"].entries())await prisma.category.upsert({where:{restaurantId_slug:{restaurantId:restaurant.id,slug:name.toLowerCase()}},update:{},create:{restaurantId:restaurant.id,name,slug:name.toLowerCase(),sortOrder}})}
+main().finally(()=>prisma.$disconnect());

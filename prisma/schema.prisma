@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole { CUSTOMER RESTAURANT_OWNER RESTAURANT_STAFF ADMIN }
+enum ProductAssetType { IMAGE MODEL_3D LOGO COVER }
+enum OrderStatus { PENDING CONFIRMED PREPARING READY COMPLETED CANCELLED }
+
+model User {
+  id          String              @id @default(cuid())
+  email       String              @unique
+  name        String?
+  role        UserRole            @default(CUSTOMER)
+  memberships RestaurantMember[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model Restaurant {
+  id          String              @id @default(cuid())
+  name        String
+  slug        String              @unique
+  description String?
+  logoUrl     String?
+  coverUrl    String?
+  isPublished Boolean             @default(false)
+  members     RestaurantMember[]
+  categories  Category[]
+  products    Product[]
+  orders      Order[]
+  events      AnalyticsEvent[]
+  assets      MediaAsset[]
+  qrCodes     QrCode[]
+  subscription Subscription?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model RestaurantMember {
+  id           String     @id @default(cuid())
+  userId       String
+  restaurantId String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  @@unique([userId, restaurantId])
+  @@index([restaurantId])
+}
+
+model Category {
+  id           String     @id @default(cuid())
+  restaurantId String
+  name         String
+  slug         String
+  sortOrder    Int        @default(0)
+  isVisible    Boolean    @default(true)
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  products     Product[]
+  @@unique([restaurantId, slug])
+  @@index([restaurantId, sortOrder])
+}
+
+model Product {
+  id           String          @id @default(cuid())
+  restaurantId String
+  categoryId   String
+  name         String
+  slug         String
+  description  String
+  ingredients  String[]
+  priceCents   Int
+  currency     String          @default("ARS")
+  imageUrl     String?
+  isAvailable  Boolean         @default(true)
+  arEnabled    Boolean         @default(false)
+  sortOrder    Int             @default(0)
+  restaurant   Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category     Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  variants     ProductVariant[]
+  model3d      Model3D?
+  orderItems   OrderItem[]
+  events       AnalyticsEvent[]
+  @@unique([restaurantId, slug])
+  @@index([restaurantId, categoryId, sortOrder])
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  name      String
+  priceCents Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Model3D {
+  id        String  @id @default(cuid())
+  productId String  @unique
+  url       String
+  format    String
+  fileSize  Int?
+  isReady   Boolean @default(false)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model MediaAsset {
+  id           String           @id @default(cuid())
+  restaurantId String
+  type         ProductAssetType
+  url          String
+  fileName     String
+  mimeType     String
+  fileSize     Int
+  restaurant   Restaurant       @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime         @default(now())
+  @@index([restaurantId, type])
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  restaurantId String
+  sessionId    String?
+  status       OrderStatus @default(PENDING)
+  totalCents   Int         @default(0)
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
+  items        OrderItem[]
+  createdAt    DateTime    @default(now())
+  @@index([restaurantId, createdAt])
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  productId  String
+  quantity   Int
+  unitCents  Int
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+}
+
+model AnalyticsEvent {
+  id           String   @id @default(cuid())
+  restaurantId String
+  productId    String?
+  sessionId    String
+  name         String
+  metadata     Json?
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  product      Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  createdAt    DateTime   @default(now())
+  @@index([restaurantId, name, createdAt])
+  @@index([sessionId, createdAt])
+}
+
+model Plan {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  monthlyCents  Int
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id           String     @id @default(cuid())
+  restaurantId String     @unique
+  planId       String
+  status       String     @default("trialing")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  plan         Plan       @relation(fields: [planId], references: [id], onDelete: Restrict)
+}
+
+model QrCode {
+  id           String     @id @default(cuid())
+  restaurantId String
+  label        String     @default("Menú principal")
+  targetPath   String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  @@index([restaurantId])
+}
