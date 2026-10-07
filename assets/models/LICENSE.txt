@@ -1,0 +1,4 @@
+The local GLB files in this folder are from Kenney's Food Kit and are released under CC0 1.0.
+Source: https://kenney.nl/assets/food-kit
+Downloaded through Flockbay's public GLB mirrors for pizza-box.glb, plate.glb and pot.glb.
+They are real binary glTF 2.0 models and may be redistributed under CC0.
