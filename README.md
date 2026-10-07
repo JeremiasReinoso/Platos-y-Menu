@@ -1,6 +1,6 @@
 # PLATO
 
-PLATO es un menú visual para restaurantes y cafeterías: catálogo por categorías, detalle de producto, carrito local, visor 3D/AR progresivo, QR y paneles de gestión locales.
+PLATO es un menú visual para restaurantes y cafeterías: catálogo por categorías, detalle de producto, carrito local, visor 3D GLB, QR y paneles de gestión locales.
 
 ## Arquitectura
 
@@ -9,11 +9,11 @@ La aplicación es 100% estática: HTML5, CSS3, JavaScript vanilla, datos base en
 ```text
 index.html                 landing
 menu.html?restaurant=...   menú público compatible con GitHub Pages
-producto.html?...          detalle, 3D/AR opcional y carrito
+producto.html?...          detalle, visor 3D opcional y carrito
 dashboard.html             gestión local del restaurante + QR
 admin.html                 resumen administrativo local
 css/                       estilos separados por pantalla
-js/                        storage, datos, menú, producto, 3D, AR y QR
+js/                        storage, datos, menú, producto, visor 3D y QR
 data/                      restaurantes, categorías y productos iniciales
 assets/                    iconos y espacio para imágenes/modelos propios
 ```
@@ -32,13 +32,13 @@ Los productos usan `producto.html?restaurant=la-nonna&product=pizza-napolitana`.
 
 ## Imágenes, GLB y QR
 
-Reemplazá las URLs demo por rutas relativas, por ejemplo `assets/images/pizza.jpg` y `assets/models/pizza.glb`. En un producto, completá `model3d` y `arEnabled: true`; el visor se carga únicamente en la página del producto. Si no hay modelo o el navegador no soporta AR, se muestra la fotografía/fallback.
+Los modelos demo reales están en `assets/models/` y se cargan desde rutas relativas. Para agregar uno propio, colocá el `.glb` en esa carpeta y completá `model3d: "assets/models/mi-plato.glb"` junto con `model3dEnabled: true`. El visor se carga únicamente al pulsar **Ver en 3D**. Si no hay modelo o el archivo falla, se muestra un fallback claro sin romper la página.
 
 El dashboard genera un QR en el navegador usando QRious desde jsDelivr. Si no hay red para cargar la librería, la URL queda visible para copiar. No se generan endpoints ni URLs de backend.
 
 ## Datos locales y límites
 
-Los datos base versionables viven en `data/*.js`. Los cambios hechos desde el dashboard se guardan en el `localStorage` del navegador actual bajo claves `plato-static:*`; no se sincronizan entre clientes, dispositivos ni navegadores. Analytics, carrito y pedidos son demostraciones locales. Pagos, delivery, autenticación y pedidos reales requieren un servicio externo futuro y no están simulados como si existieran.
+Los datos base versionables viven en `data/*.js`. Los cambios hechos desde el dashboard se guardan en el `localStorage` del navegador actual bajo claves `plato-static:*`; no se sincronizan entre clientes, dispositivos ni navegadores. Analytics, carrito y pedidos son demostraciones locales. Pagos, delivery, autenticación y AR requieren servicios o APIs futuras y no están simulados como si existieran.
 
 ## GitHub Pages
 
