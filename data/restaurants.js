@@ -1,0 +1,1 @@
+window.PLATO_RESTAURANTS = [{id:"la-nonna", name:"La Nonna", slug:"la-nonna", description:"Cocina italiana de barrio, hecha sin apuro y servida con cariño.", address:"Palermo, Buenos Aires", logo:"LN", cover:"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1800&q=85"}];
