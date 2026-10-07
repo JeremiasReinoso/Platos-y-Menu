@@ -32,7 +32,9 @@ Los productos usan `producto.html?restaurant=la-nonna&product=pizza-napolitana`.
 
 ## Imágenes, GLB y QR
 
-Los modelos demo reales están en `assets/models/` y se cargan desde rutas relativas. Para agregar uno propio, colocá el `.glb` en esa carpeta y completá `model3d: "assets/models/mi-plato.glb"` junto con `model3dEnabled: true`. El visor se carga únicamente al pulsar **Ver en 3D**. Si no hay modelo o el archivo falla, se muestra un fallback claro sin romper la página.
+`assets/models/` está reservado exclusivamente para modelos GLB que representen al producto correspondiente. Los tres archivos heredados (`pizza-box.glb`, `pot.glb` y `plate.glb`) no se asignan a los platos porque no son modelos verificables de esos productos. Para agregar un asset real, colocá por ejemplo `assets/models/pizza-margherita.glb` y completá en `data/products.js` `model3d: "assets/models/pizza-margherita.glb"` junto con `model3dEnabled: true`. El visor y **Ver en mi mesa** se habilitan únicamente cuando el producto tiene ese vínculo. Si no hay modelo o el archivo falla, la fotografía queda claramente identificada como fallback.
+
+La cámara se solicita únicamente después del clic en **Ver en mi mesa**, se procesa localmente en el navegador y se detienen sus tracks al salir. La experiencia básica de cámara funciona como mejora progresiva; WebXR se detecta para una futura adaptación sin hacer que GitHub Pages dependa de esa API.
 
 El dashboard genera un QR en el navegador usando QRious desde jsDelivr. Si no hay red para cargar la librería, la URL queda visible para copiar. No se generan endpoints ni URLs de backend.
 
