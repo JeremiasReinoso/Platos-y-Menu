@@ -1,60 +1,49 @@
 # PLATO
 
-PLATO es una plataforma SaaS para restaurantes: menús digitales visuales, productos 3D y experiencias AR para convertir la curiosidad en pedidos.
+PLATO es un menú visual para restaurantes y cafeterías: catálogo por categorías, detalle de producto, carrito local, visor 3D/AR progresivo, QR y paneles de gestión locales.
 
-## Estado actual
+## Arquitectura
 
-La base inicial ya incluye:
-
-- menú público de La Nonna en `/menu/la-nonna`;
-- páginas individuales de productos;
-- fallback explícito cuando no existe un modelo 3D;
-- dashboard restaurante en `/dashboard` con creación local de productos;
-- panel independiente en `/admin`;
-- esquema Prisma/PostgreSQL multi-tenant;
-- contratos separados para 3D, AR, UI y base de datos;
-- endpoint de salud en `/api/health`.
-
-Los datos demo de menú usan imágenes de Unsplash y están identificados como contenido demo. No se presenta ningún placeholder como modelo 3D real.
-
-## Stack
-
-Next.js 15, React 19, TypeScript, Prisma, PostgreSQL, Zod y `model-viewer` como dirección de integración futura para GLB/GLTF + AR. La aplicación mantiene 3D/AR desacoplados del menú para cargar assets solo en la página del producto.
-
-## Instalación
-
-```bash
-npm install
-cp .env.example .env
-npm run typecheck
-npm run dev
-```
-
-Para conectar la base PostgreSQL:
-
-```bash
-npm run db:generate
-npm run db:migrate
-npm run db:seed
-```
-
-## Estructura
+La aplicación es 100% estática: HTML5, CSS3, JavaScript vanilla, datos base en `data/*.js` y overrides en `localStorage`. No hay Node, build, API propia, base de datos, autenticación de servidor ni SSR.
 
 ```text
-app/                 rutas públicas, dashboard, admin y API
-components/          UI de experiencia
-lib/                 datos y utilidades de dominio inicial
-packages/             límites reutilizables de UI, 3D, AR y database
-prisma/               esquema y seed
-docs/                 arquitectura, datos y API
+index.html                 landing
+menu.html?restaurant=...   menú público compatible con GitHub Pages
+producto.html?...          detalle, 3D/AR opcional y carrito
+dashboard.html             gestión local del restaurante + QR
+admin.html                 resumen administrativo local
+css/                       estilos separados por pantalla
+js/                        storage, datos, menú, producto, 3D, AR y QR
+data/                      restaurantes, categorías y productos iniciales
+assets/                    iconos y espacio para imágenes/modelos propios
 ```
 
-## Roadmap
+## Uso
 
-1. Persistencia real y autenticación con roles.
-2. CRUD de categorías/productos con storage validado.
-3. Upload y optimización GLB/GLTF.
-4. AR compatible por dispositivo con fallback.
-5. Analytics y QR descargable.
-6. Gestión global de admin.
-7. Pedidos reales, sin pagos ni delivery en este MVP.
+Se puede abrir `index.html` directamente o publicar la carpeta completa en GitHub Pages. Para probarlo localmente no se necesita instalar nada; un servidor estático opcional permite probar APIs como AR con más fidelidad.
+
+El menú demo es:
+
+```text
+menu.html?restaurant=la-nonna
+```
+
+Los productos usan `producto.html?restaurant=la-nonna&product=pizza-napolitana`. Para agregar un restaurante, sumalo a `data/restaurants.js`, sus categorías a `data/categories.js` y sus productos a `data/products.js`.
+
+## Imágenes, GLB y QR
+
+Reemplazá las URLs demo por rutas relativas, por ejemplo `assets/images/pizza.jpg` y `assets/models/pizza.glb`. En un producto, completá `model3d` y `arEnabled: true`; el visor se carga únicamente en la página del producto. Si no hay modelo o el navegador no soporta AR, se muestra la fotografía/fallback.
+
+El dashboard genera un QR en el navegador usando QRious desde jsDelivr. Si no hay red para cargar la librería, la URL queda visible para copiar. No se generan endpoints ni URLs de backend.
+
+## Datos locales y límites
+
+Los datos base versionables viven en `data/*.js`. Los cambios hechos desde el dashboard se guardan en el `localStorage` del navegador actual bajo claves `plato-static:*`; no se sincronizan entre clientes, dispositivos ni navegadores. Analytics, carrito y pedidos son demostraciones locales. Pagos, delivery, autenticación y pedidos reales requieren un servicio externo futuro y no están simulados como si existieran.
+
+## GitHub Pages
+
+1. Subí el contenido del repositorio a GitHub.
+2. En **Settings → Pages**, elegí la rama y la carpeta raíz `/`.
+3. Usá enlaces relativos como los incluidos en el proyecto; funcionan bajo `https://usuario.github.io/plato/`.
+
+No hace falta `npm install`, `npm run build` ni un servidor Node.
