@@ -1,0 +1,1 @@
+window.PLATO_CATEGORIES = [{id:"pizzas",restaurantId:"la-nonna",name:"Pizzas",order:1},{id:"pastas",restaurantId:"la-nonna",name:"Pastas",order:2},{id:"postres",restaurantId:"la-nonna",name:"Postres",order:3},{id:"bebidas",restaurantId:"la-nonna",name:"Bebidas",order:4}];
